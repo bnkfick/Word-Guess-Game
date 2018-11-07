@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Word Guess Game</title>
+  <style>
+
+    body {
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 18px;
+    line-height: 34px;
+    color: #777777;
+    background: url("images/bananas.png");
+  }
+  
+  .content-wrapper {
+      margin: 0;
+      width: 100%;
+      text-align: left;
+      padding-left: 50px;
+  }
+
+  .content-box {
+      max-width: 880px;
+      background-color: #fff;
+      margin-bottom: 50px;
+      margin-top: 50px; 
+      padding: 10px 40px 10px 40px;
+      border: 1px solid #dddddd;
+  }
+
+</style>
+</head>
+
+<body>
+
+  <div class="content-wrapper clearfix">
+    <div class="content-box">
+      <h1>Word Guess Game</h1>
+
+      <div class="game-message">
+        Game Message: <span id="game-message">Press any key to get started.</span>
+      </div>
+      <div class="word-display">
+        WORD: <span id="word-display"></span>
+      </div>
+      <div class="letter-input">
+        Guess:
+        <span id="letter-input"></span>
+      </div>
+      <div class="wrong-letters">
+        Wrong Letters:
+        <span id="wrong-letters"></span>
+      </div>
+      </form>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+
+    //----------------------------------------------------------------//
+    // Internal Javascript Game Variables
+    //----------------------------------------------------------------//
+    var gameInProgress = 0;   //to prevent further play when win or loss
+    var hangmanWord;          //The word to guess
+    var answerArray;          //The blank spaces for each letter of the word and correct letters
+    var wrongLetters;         //guessed wrong letters
+
+    var hangmanState;         //how many pieces of the man are visible
+    var drawSequence;         //order of pieces of hangman to draw when incorrect letter
+
+    //----------------------------------------------------------------//
+    // Internal Javascript Messages to the Player
+    // To Be Displayed on the Screen
+    //----------------------------------------------------------------//
+    var INTERIM_MSG = 'WORD GUESS GAME';
+    var START_MSG = 'Press any key to get started.';
+    var WIN_MSG = 'You WIN!';
+    var LOSE_MSG = 'Oh no, you lose!';
+    var ERR_MSG_NOT_ALPHA = 'That is not a letter.';
+    var ERR_MSG_REPEAT = 'You already guessed that letter.';
+
+    //----------------------------------------------------------------//
+    // Javascript Variables Representing DOM Elements
+    // That allow the Program to display to the Screen
+    //----------------------------------------------------------------//
+    var gameMsgTxt = document.getElementById("game-message");
+    var letterTxt = document.getElementById("letter-input");
+    var wrongLettersTxt = document.getElementById("wrong-letters");
+    var wordDisplayTxt = document.getElementById("word-display");
+
+
+    //----------------------------------------------------------------//
+    // Listen for the User Keypresses and Play the Game
+    //----------------------------------------------------------------//
+    document.onkeyup = function (event) {
+      //this needs to be updated and the game needs to start over if the user wins or loses (runs out of guesses)
+      if (gameInProgress) {
+
+      } else {
+        //this is a new game
+        gameInProgress = true;
+        //Starting State
+        gameMsgTxt.textContent = START_MSG;
+
+        hangmanWord = pickWord();
+        answerArray = setupAnswerArray(hangmanWord);
+
+        wordDisplayTxt.textContent = hangmanWord;
+        wrongLettersTxt.textContent = answerArray.toString();
+      }
+
+      //This has to go to a list of wrong letters if incorrect and an updated answerArray if correct
+      updateGuessedLetters(event.key);
+
+      //@todo remove list to editable file
+      //@todo make spaces in words work
+      function pickWord() { // Return a random word
+        console.log("hangmanGame pickWord");
+        var wordsToGuess = ["Saab", "Volvo", "BMW", "Audi", "Jeep", "Toyota", "Honda", "Tesla"];
+        var word = wordsToGuess[Math.floor(Math.random() * wordsToGuess.length)];
+        console.log("hangman_module.js pick word: " + word);
+        return word;
+
+      };
+
+      function setupAnswerArray(word) { // Return word as blank spots for the letters
+        console.log("hangmanGame setupAnswerArray");
+        var answerArray = [];
+        for (var i = 0; i < word.length; i++) {
+          answerArray[i] = "_";
+        }
+        return answerArray;
+      }
+
+      function getGuess() {
+        var letter = letterTxt.val;
+
+
+        //console.log("Letter Guessed var letter = anotherGet: " + anotherGet);
+        console.log("Letter Guessed var letter = letterText.val: " + letter);
+        console.log("Letter Guessed letterText.val: " + letterText.val);
+
+        return letter.toLowerCase();
+      };
+
+      function updateGuessedLetters(answerArray) { //update the word with guessed letters
+        console.log("HangmanGame updateGuessedLetters");
+        var wordDisplay = answerArray.join(" ");
+        console.log(wordDisplay);
+        wordDisplayTxt.textContent = wordDisplay;
+      };
+
+      function changeGameMsg(msg) {
+        gameMsgTxt.fadeOut(500, function () {
+          this.textContent(msg).fadeIn(500);
+        });
+        console.log("gameMsgTxt.textContent: " + gameMsgTxt.textContent);
+      };
+      function win() {
+        changeGameMsg(WIN_MSG);
+        letterText.blur();
+        letterText.prop('disabled', true);
+        gameInProgress = false;
+      };
+      function lose() {
+        changeGameMsg(LOSE_MSG);
+        letterText.blur();
+        letterText.prop('disabled', true);
+        revealWord();
+        gameInProgress = false;
+
+      };
+
+
+
+
+  </script>
+
+
+
+</body>
+
+</html>
