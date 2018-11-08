@@ -60,54 +60,176 @@
 
   <script type="text/javascript">
 
-    document.onkeyup = function(event) {
-      console.log(event.key);
+
+    //If I wrap the game in an object, what is the main execute section?  
+    //Is main execute in the function(event) {}?
+    //What variables need to be global?
+    //Should the user html variables be seperated from the object?
+
+    //----------------------------------------------------------------//
+    // Javascript Variables Representing Page Elements
+    // That allow the Program to display to the Screen
+    //----------------------------------------------------------------//
+    var gameMsgTxt = document.getElementById("game-message");
+    var letterTxt = document.getElementById("letter-input");
+    var wrongLettersTxt = document.getElementById("wrong-letters");
+    var wordDisplayTxt = document.getElementById("word-display");
+
+
+    //----------------------------------------------------------------//
+    // Javascript Game Variables
+    //----------------------------------------------------------------//
+    var gameInProgress = 0;   //used to reset 
+    var hangmanWord;          //The word to guess
+    var answerArray;          //The blank spaces for each letter of the word and correct letters
+    var wrongLetters;         //guessed wrong letters
+
+    var guessesLeft;         //start with 10 guesses
+
+    //----------------------------------------------------------------//
+    // Javascript Messages to the Player
+    // To Be Displayed on the Screen
+    //----------------------------------------------------------------//
+    var INTERIM_MSG = 'WORD GUESS GAME';
+    var START_MSG = 'Press any key to get started.';
+    var WIN_MSG = 'You WIN!';
+    var LOSE_MSG = 'Oh no, you lose!';
+    var GUESS_CORRECT = "You guessed a letter!"
+    var GUESS_INCORRECT = "Oh bananas.  That letter isn't in the word."
+    var ERR_MSG_NOT_ALPHA = 'That is not a letter.';
+    var ERR_MSG_REPEAT = 'You already guessed that letter.';
+
+
+
+    //On page load 
+    //And/Or when a game is completed and a new one needs to be set up
+    resetGame();
+
+
+
+    //----------------------------------------------------------------//
+    // Listen for the User Keypresses and Play the Game
+    //----------------------------------------------------------------//
+
+    document.onkeyup = function (event) {
+      var userGuess = event.key;
+      console.log(userGuess);
+      //check that its a letter
+      if (!isValidEntry(userGuess)) {
+        //if not a letter send user a message
+        console.log(ERR_MSG_NOT_ALPHA);
+        gameMsgTxt.textContent = ERR_MSG_NOT_ALPHA;
+        return;
+      } else {
+        //if already guessed send user a message
+        //check that letter against the previous 
+        //correct AND incorrect guesses
+        if ((answerArray.indexOf(userGuess) > -1) ||
+          wrongLetters.indexOf(userGuess) > -1) {
+          gameMsgTxt.textContent = ERR_MSG_REPEAT;
+          return;
+        } else {
+
+          letterTxt.textContent = userGuess;
+          console.log("Word index: " + hangmanWord.indexOf(userGuess));
+          //check that letter against the word
+          if (hangmanWord.indexOf(userGuess) !== -1) {
+            //if the letter guessed is in the word
+            gameMsgTxt.textContent = GUESS_CORRECT;
+            //update the word blanks
+            updateAnswerArray(userGuess, hangmanWord, answerArray);
+            wordDisplayTxt.textContent = answerArray;
+            //check to see if the user has won
+            //if the user has won
+            winGame();
+            //send message
+            //resetting the game to allow a new one to start
+            //resetGame();
+          } else {
+            //if the letter guessed is the wrong letter
+            //update the guesses if wrong letter
+            gameMsgTxt.textContent = GUESS_INCORRECT;
+            wrongLetters.push(userGuess);
+            wrongLettersTxt.textContent = wrongLetters;
+            //Take away a guess if the user guesses the wrong letter
+            guessesLeft--;
+            //check to see if the user has any guesses left
+            if (guessesLeft > 0) {
+              return;
+            } else {
+              //if no guesses are left then 
+              //lose and end the game
+              loseGame();
+              //ending the game means revealing the word
+              //resetting the game to allow a new one to start
+              //resetGame();
+            }
+          }
+        }
+      }
+
     }
 
-//If I wrap the game in an object, what is the main execute section?  
-//Is main execute in the function(event) {}?
-//What variables need to be global?
-//Should the user html variables be seperated from the object?
-//------------------------------------------------------------------------//
-//Declare Variables corresponding to data that will appear on the html page
-//Hangman Word Blanks
-//Guesses
-//Guesses Left
-//Wrong Letters
 
-//------------------------------------------------------------------------//
-//Declare Variables Tracking the Word Guess Game
-//Hangman Word Blanks
-//Hangman Word 
-//Guesses
-//Guesses Left
-//Wrong Letters
-//Is this a new game, in progress or game over?  
-
-//------------------------------------------------------------------------//
-//catch a keypress from the user input
-
-//check that its a letter
-//if not a letter send user a message
-//check that letter against the previous guesses
-//if already guessed send user a message
-//check that letter against the word
-//if the letter guessed is in the word
-  //update the word blanks
-  //check to see if the user has won
-  //if the user has won
-    //send message
-    //resetting the game to allow a new one to start
-//if the letter guessed is the wrong letter
-  //update the guesses if wrong letter
-  //update the guesses left if the wrong letter
-  //check to see if the user has any guesses left
-  //if no guesses are left then end the game
-    //ending the game means revealing the workd
-    //resetting the game to allow a new one to start
+    //----------------------------------------------------------------//
+    // Set UP a New Game
+    //----------------------------------------------------------------//
+    function resetGame() {
+      hangmanWord = pickWord();
+      answerArray = setupAnswerArray(hangmanWord);
+      wordDisplayTxt.textContent = answerArray;
+      wrongLetters = new Array(); //store any wrong letter guesses in here
+      guessesLeft = 10;
+    }
     
+    // Return a random word
+    function pickWord() {
+      console.log("hangmanGame pickWord");
+      var wordsToGuess = ["Saab", "Volvo", "BMW", "Audi", "Jeep", "Toyota", "Honda", "Tesla"];
+      var word = wordsToGuess[Math.floor(Math.random() * wordsToGuess.length)];
+      console.log("word guess pick word: " + word);
+      return word;
+    }
 
+    // Return word as blank spots for the letters
+    function setupAnswerArray(word) {
+      console.log("setupAnswerArray for: " + word);
+      var answerArray = [];
+      for (var i = 0; i < word.length; i++) {
+        answerArray[i] = "_";
+      }
+      return answerArray;
+    }
 
+    // Update answerArray and return a number showing how many
+    // times the guess appears in the word so remainingLetters
+    // can be updated
+    function updateAnswerArray(guess, word, answerArray) {
+      var lettersFound = 0;
+      for (var j = 0; j < word.length; j++) {
+        if (word[j] === guess) {
+          answerArray[j] = guess;
+          lettersFound++;
+        }
+      }
+      return lettersFound;
+    };
+
+    //Check that the user input keypress is a valid letter
+    function isValidEntry(letter) {
+      var isValid = /^[A-Za-z]$/.test(letter);
+      console.log("isValidEntry( " + letter + " ): " + isValid);
+      if (isValid) { return true; }
+      else { return false; }
+    }
+
+    function winGame() {
+      gameMsgTxt.textContent = WIN_MSG;
+    }
+
+    function loseGame() {
+      gameMsgTxt.textContent = LOSE_MSG;
+    }
   </script>
 
 
