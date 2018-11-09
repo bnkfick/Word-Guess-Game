@@ -108,6 +108,11 @@
     //----------------------------------------------------------------//
 
     document.onkeyup = function (event) {
+
+      if (!gameInProgress) {
+        gameMsgTxt.textContent = INTERIM_MSG;
+        return;
+      }
       var userGuess = event.key;
       console.log(userGuess);
       //check that its a letter
@@ -166,6 +171,7 @@
           //resetting the game to allow a new one to start
         }
       }
+
     }
 
 
@@ -174,6 +180,7 @@
     // Set UP a New Game
     //----------------------------------------------------------------//
     function resetGame() {
+      console.log("reset");
       gameInProgress = true;
       hangmanWord = pickWord();
       answerArray = setupAnswerArray(hangmanWord);
@@ -229,23 +236,26 @@
     function winGame() {
       console.log("Win game");
       gameMsgTxt.textContent = WIN_MSG;
+      gameInProgress = false;
+
       setTimeout(function () {
         gameMsgTxt.textContent = START_MSG;
         resetGame();
       }, 5000);
-      gameInProgress = false;
     }
 
     function loseGame() {
+      console.log("Lose Game");
       gameMsgTxt.textContent = LOSE_MSG;
       var correctAnswer = hangmanWord.split('').join(" ");
       //reveal word
       wordDisplayTxt.textContent = correctAnswer;
+      gameInProgress = false;
+
       setTimeout(function () {
         gameMsgTxt.textContent = START_MSG;
         resetGame();
       }, 5000);
-      gameInProgress = false;
     }
 
   </script>
