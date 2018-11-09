@@ -45,10 +45,6 @@
       <div class="word-display">
         WORD: <span id="word-display"></span>
       </div>
-      <div class="letter-input">
-        Guess:
-        <span id="letter-input"></span>
-      </div>
       <div class="wrong-letters">
         Wrong Letters:
         <span id="wrong-letters"></span>
@@ -115,77 +111,83 @@
       var userGuess = event.key;
       console.log(userGuess);
       //check that its a letter
+      if (!gameInProgress) resetGame();
       if (!isValidEntry(userGuess)) {
         //if not a letter send user a message
         console.log(ERR_MSG_NOT_ALPHA);
         gameMsgTxt.textContent = ERR_MSG_NOT_ALPHA;
         return;
-      } else {
-        //if already guessed send user a message
-        //check that letter against the previous 
-        //correct AND incorrect guesses
-        if ((answerArray.indexOf(userGuess) > -1) ||
-          wrongLetters.indexOf(userGuess) > -1) {
-          gameMsgTxt.textContent = ERR_MSG_REPEAT;
-          return;
-        } else {
-
-          letterTxt.textContent = userGuess;
-          console.log("Word index: " + hangmanWord.indexOf(userGuess));
-          //check that letter against the word
-          if (hangmanWord.indexOf(userGuess) !== -1) {
-            //if the letter guessed is in the word
-            gameMsgTxt.textContent = GUESS_CORRECT;
-            //update the word blanks
-            updateAnswerArray(userGuess, hangmanWord, answerArray);
-            wordDisplayTxt.textContent = answerArray;
-            //check to see if the user has won
-            //if the user has won
-            winGame();
-            //send message
-            //resetting the game to allow a new one to start
-            //resetGame();
-          } else {
-            //if the letter guessed is the wrong letter
-            //update the guesses if wrong letter
-            gameMsgTxt.textContent = GUESS_INCORRECT;
-            wrongLetters.push(userGuess);
-            wrongLettersTxt.textContent = wrongLetters;
-            //Take away a guess if the user guesses the wrong letter
-            guessesLeft--;
-            //check to see if the user has any guesses left
-            if (guessesLeft > 0) {
-              return;
-            } else {
-              //if no guesses are left then 
-              //lose and end the game
-              loseGame();
-              //ending the game means revealing the word
-              //resetting the game to allow a new one to start
-              //resetGame();
-            }
-          }
-        }
       }
 
+      //check that letter against the previous 
+      //correct AND incorrect guesses
+      //if already guessed send user a message
+      if ((answerArray.indexOf(userGuess) > -1) ||
+        wrongLetters.indexOf(userGuess) > -1) {
+        gameMsgTxt.textContent = ERR_MSG_REPEAT;
+        return;
+      }
+      //gameMsgTxt.textContent = INTERIM_MSG;
+      //CORRECT GUESS: UPDATE THE ANSWER ARRAY and DISPLAYED WORD
+      //WRONG GUESS:   UPDATE THE WRONG LETTERS AND THE HANGMAN
+
+      console.log("Word index: " + hangmanWord.toLowerCase().indexOf(userGuess.toLowerCase()));
+      //check that letter against the word
+      if (hangmanWord.toLowerCase().indexOf(userGuess.toLowerCase()) !== -1) {
+
+        //if the letter guessed is in the word
+        gameMsgTxt.textContent = GUESS_CORRECT;
+        //update the word blanks
+        wordDisplayTxt.textContent = updateAnswerArray(userGuess, hangmanWord, answerArray);
+        //check to see if the user has won
+        //if the user has won
+        if (answerArray.join('') == hangmanWord) {
+          winGame();
+        }
+        //send message
+        //resetting the game to allow a new one to start
+        //resetGame();
+      } else {
+        //if the letter guessed is the wrong letter
+        //update the guesses if wrong letter
+        gameMsgTxt.textContent = GUESS_INCORRECT;
+        wrongLetters.push(userGuess);
+        wrongLettersTxt.textContent = wrongLetters;
+        //Take away a guess if the user guesses the wrong letter
+        wrongGuessesMade++;
+        //check to see if the user has any guesses left
+        if (wrongGuessesMade < 10) {
+          return;
+        } else {
+          //if no guesses are left then 
+          //lose and end the game
+          loseGame();
+          //ending the game means revealing the word
+          //resetting the game to allow a new one to start
+        }
+      }
     }
+
 
 
     //----------------------------------------------------------------//
     // Set UP a New Game
     //----------------------------------------------------------------//
     function resetGame() {
+      gameInProgress = true;
       hangmanWord = pickWord();
       answerArray = setupAnswerArray(hangmanWord);
-      wordDisplayTxt.textContent = answerArray;
       wrongLetters = new Array(); //store any wrong letter guesses in here
-      guessesLeft = 10;
+      wrongLettersTxt.textContent = "";
+      wrongGuessesMade = 0;
+      gameMsgTxt.textContent = START_MSG;
+      wordDisplayTxt.textContent = answerArray;
     }
-    
+
     // Return a random word
     function pickWord() {
       console.log("hangmanGame pickWord");
-      var wordsToGuess = ["Saab", "Volvo", "BMW", "Audi", "Jeep", "Toyota", "Honda", "Tesla"];
+      var wordsToGuess = ["Chewbacca", "Batman", "Ralphie", "Audi", "Jeep", "Toyota", "Honda", "Tesla"];
       var word = wordsToGuess[Math.floor(Math.random() * wordsToGuess.length)];
       console.log("word guess pick word: " + word);
       return word;
@@ -205,14 +207,15 @@
     // times the guess appears in the word so remainingLetters
     // can be updated
     function updateAnswerArray(guess, word, answerArray) {
+      console.log("guess: " + guess + " word: " + hangmanWord + " answerArray: " + answerArray);
       var lettersFound = 0;
-      for (var j = 0; j < word.length; j++) {
-        if (word[j] === guess) {
-          answerArray[j] = guess;
+      for (var i = 0; i < word.length; i++) {
+        if (word[i].toLowerCase() === guess.toLowerCase()) {
+          answerArray[i] = word[i];
           lettersFound++;
         }
       }
-      return lettersFound;
+      return answerArray;
     };
 
     //Check that the user input keypress is a valid letter
@@ -224,12 +227,27 @@
     }
 
     function winGame() {
+      console.log("Win game");
       gameMsgTxt.textContent = WIN_MSG;
+      setTimeout(function () {
+        gameMsgTxt.textContent = START_MSG;
+        resetGame();
+      }, 5000);
+      gameInProgress = false;
     }
 
     function loseGame() {
       gameMsgTxt.textContent = LOSE_MSG;
+      var correctAnswer = hangmanWord.split('').join(" ");
+      //reveal word
+      wordDisplayTxt.textContent = correctAnswer;
+      setTimeout(function () {
+        gameMsgTxt.textContent = START_MSG;
+        resetGame();
+      }, 5000);
+      gameInProgress = false;
     }
+
   </script>
 
 
