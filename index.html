@@ -23,13 +23,14 @@
 
   .content-box {
       max-width: 880px;
+      height: 500px;
       background-color: #fff;
       margin-bottom: 50px;
       margin-top: 50px; 
       padding: 10px 40px 10px 40px;
       border: 1px solid #dddddd;
   }
-  .win-img {
+  #word-image {
     max-width: 300px;
   }
 </style>
@@ -40,7 +41,7 @@
   <div class="content-wrapper clearfix">
     <div class="content-box">
       <h1>Word Guess Game</h1>
-
+      <h2>Favorite Movie Characters</h2>
       <div class="game-message">
         Game Message: <span id="game-message">Press any key to get started.</span>
       </div>
@@ -146,10 +147,14 @@
         //if the letter guessed is in the word
         gameMsgTxt.textContent = GUESS_CORRECT;
         //update the word blanks
-        wordDisplayTxt.textContent = updateAnswerArray(userGuess, hangmanWord, answerArray);
+        answerArray = updateAnswerArray(userGuess, hangmanWord, answerArray);
+        wordDisplayTxt.innerHTML = "";
+        for (var i = 0; i < answerArray.length; i++) {
+          wordDisplayTxt.innerHTML += answerArray[i] + "&nbsp;";
+        }
         //check to see if the user has won
         //if the user has won
- 
+
         if (answerArray.join('') == hangmanWord) {
           winGame();
         }
@@ -193,16 +198,23 @@
       wrongLettersTxt.textContent = "";
       wrongGuessesMade = 0;
       gameMsgTxt.textContent = START_MSG;
-      wordDisplayTxt.textContent = answerArray;
+      wordDisplayTxt.innerHTML = "";
+      for (var i = 0; i < answerArray.length; i++) {
+        wordDisplayTxt.innerHTML += answerArray[i] + "&nbsp;";
+      }
       if (imgDiv.hasChildNodes()) { imgDiv.innerHTML = ""; }
       // imgDiv.removeChild('img');
     }
+
+
+
 
     // Return a random word
     function pickWord() {
       console.log("hangmanGame pickWord");
       var wordsToGuess = ["Chewbacca", "Batman", "Groot", "Paddington", "Tarzan", "Rapunzel", "Alfalfa", "Kermit", "Pikachu", "Shrek", "Barbie",
         "Elmo", "Annie", "Ralphie", "Nemo", "Shrek", "Woody", "Yoda", "Bane", "Morpheus", "Popeye", "Babe", "Minions"];
+
       var word = wordsToGuess[Math.floor(Math.random() * wordsToGuess.length)];
       console.log("word guess pick word: " + word);
       return word;
@@ -247,7 +259,7 @@
 
       var winnerImgElem = document.createElement('img'); // is a node
       winnerImgElem.src = "images/" + hangmanWord + ".jpg";
-      winnerImgElem.id = "word_image";
+      winnerImgElem.id = "word-image";
       imgDiv.appendChild(winnerImgElem);
 
       gameInProgress = false;
