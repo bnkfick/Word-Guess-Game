@@ -30,12 +30,15 @@
       padding: 10px 40px 10px 40px;
       /*border: 1px solid #dddddd;*/
   }
+  .middle > * {
+    vertical-align: middle;
+  }
   #word-image {
+    padding-top:50px;
     max-width: 300px;
   }
   .win-image {
     height: 100%;
-    vertical-align: middle;
   }
   .column {
     width: 50%;
@@ -76,7 +79,7 @@
           <span id="guesses-left"></span>
         </div>
       </div>
-      <div id="win-img" class="column">
+      <div id="win-img" class="column middle">
       </div>
     </div>
   </div>
@@ -229,7 +232,6 @@
         wordDisplayTxt.innerHTML += answerArray[i] + "&nbsp;";
       }
       if (imgDiv.hasChildNodes()) { imgDiv.innerHTML = ""; }
-      imgDiv.innerHTML = "<img src='images/Ralphie.jpg' id='word-image'>";
       // imgDiv.removeChild('img');
     }
 
