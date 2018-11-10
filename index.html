@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <title>Word Guess Game</title>
   <style>
-
+    /* @todo remove styles to a style sheet */
     body {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 18px;
     line-height: 34px;
     color: #777777;
-    background: url("images/bananas.png");
+    /* background: url("images/bananas.png"); */
   }
   
   .content-wrapper {
@@ -23,16 +23,34 @@
 
   .content-box {
       max-width: 880px;
-      height: 500px;
+ 
       background-color: #fff;
       margin-bottom: 50px;
       margin-top: 50px; 
       padding: 10px 40px 10px 40px;
-      border: 1px solid #dddddd;
+      /*border: 1px solid #dddddd;*/
   }
   #word-image {
     max-width: 300px;
   }
+  .win-image {
+    height: 100%;
+    vertical-align: middle;
+  }
+  .column {
+    width: 50%;
+    float: left;
+  }
+/* -- lightgrey if the viewport is less than 640px wide -- */
+@media screen and (max-width: 600px) {
+
+    .content-wrapper {
+      padding-left: 0;
+    }
+    .column {
+    width: 100%;
+  }
+}
 </style>
 </head>
 
@@ -40,25 +58,30 @@
 
   <div class="content-wrapper clearfix">
     <div class="content-box">
-      <h1>Word Guess Game</h1>
-      <h2>Favorite Movie Characters</h2>
-      <div class="game-message">
-        Game Message: <span id="game-message">Press any key to get started.</span>
+      <div class="column">
+        <h1>Word Guess Game</h1>
+        <h2>Favorite Movie Characters</h2>
+        <div class="game-message">
+          <span id="game-message">Press any key to get started.</span>
+        </div>
+        <div class="word-display">
+          WORD: <span id="word-display"></span>
+        </div>
+        <div class="wrong-letters">
+          Wrong Letters:
+          <span id="wrong-letters"></span>
+        </div>
+        <div class="guesses-left">
+          Guesses Left:
+          <span id="guesses-left"></span>
+        </div>
       </div>
-      <div class="word-display">
-        WORD: <span id="word-display"></span>
+      <div id="win-img" class="column">
       </div>
-      <div class="wrong-letters">
-        Wrong Letters:
-        <span id="wrong-letters"></span>
-      </div>
-      <div id="win-img"></div>
     </div>
   </div>
 
-
   <script type="text/javascript">
-
 
     //If I wrap the game in an object, what is the main execute section?  
     //Is main execute in the function(event) {}?
@@ -72,6 +95,7 @@
     var gameMsgTxt = document.getElementById("game-message");
     var letterTxt = document.getElementById("letter-input");
     var wrongLettersTxt = document.getElementById("wrong-letters");
+    var guessesLeftTxt = document.getElementById("guesses-left");
     var wordDisplayTxt = document.getElementById("word-display");
     var imgDiv = document.getElementById("win-img");
 
@@ -83,7 +107,6 @@
     var hangmanWord;          //The word to guess
     var answerArray;          //The blank spaces for each letter of the word and correct letters
     var wrongLetters;         //guessed wrong letters
-
     var guessesLeft;         //start with 10 guesses
 
     //----------------------------------------------------------------//
@@ -99,7 +122,7 @@
     var ERR_MSG_NOT_ALPHA = 'That is not a letter.';
     var ERR_MSG_REPEAT = 'You already guessed that letter.';
 
-
+    var DEBUG = false;
 
     //On page load 
     //And/Or when a game is completed and a new one needs to be set up
@@ -118,12 +141,12 @@
         return;
       }
       var userGuess = event.key;
-      console.log(userGuess);
+      if (DEBUG) console.log(userGuess);
       //check that its a letter
       if (!gameInProgress) resetGame();
       if (!isValidEntry(userGuess)) {
         //if not a letter send user a message
-        console.log(ERR_MSG_NOT_ALPHA);
+        if (DEBUG) console.log(ERR_MSG_NOT_ALPHA);
         gameMsgTxt.textContent = ERR_MSG_NOT_ALPHA;
         return;
       }
@@ -140,7 +163,7 @@
       //CORRECT GUESS: UPDATE THE ANSWER ARRAY and DISPLAYED WORD
       //WRONG GUESS:   UPDATE THE WRONG LETTERS AND THE HANGMAN
 
-      console.log("Word index: " + hangmanWord.toLowerCase().indexOf(userGuess.toLowerCase()));
+      if (DEBUG) console.log("Word index: " + hangmanWord.toLowerCase().indexOf(userGuess.toLowerCase()));
       //check that letter against the word
       if (hangmanWord.toLowerCase().indexOf(userGuess.toLowerCase()) !== -1) {
 
@@ -154,7 +177,8 @@
         }
         //check to see if the user has won
         //if the user has won
-
+        //.toString() had commas making the word comparison fail
+        //@todo - should I be using ===
         if (answerArray.join('') == hangmanWord) {
           winGame();
         }
@@ -169,6 +193,7 @@
         wrongLettersTxt.textContent = wrongLetters;
         //Take away a guess if the user guesses the wrong letter
         wrongGuessesMade++;
+        guessesLeftTxt.innerHTML = 10 - wrongGuessesMade;
         //check to see if the user has any guesses left
         if (wrongGuessesMade < 10) {
           return;
@@ -189,7 +214,7 @@
     // Set UP a New Game
     //----------------------------------------------------------------//
     function resetGame() {
-      console.log("reset");
+      if (DEBUG) console.log("reset");
       gameInProgress = true;
       hangmanWord = pickWord();
       answerArray = null;
@@ -199,10 +224,12 @@
       wrongGuessesMade = 0;
       gameMsgTxt.textContent = START_MSG;
       wordDisplayTxt.innerHTML = "";
+      guessesLeftTxt.innerHTML = "10";
       for (var i = 0; i < answerArray.length; i++) {
         wordDisplayTxt.innerHTML += answerArray[i] + "&nbsp;";
       }
       if (imgDiv.hasChildNodes()) { imgDiv.innerHTML = ""; }
+      imgDiv.innerHTML = "<img src='images/Ralphie.jpg' id='word-image'>";
       // imgDiv.removeChild('img');
     }
 
@@ -211,18 +238,18 @@
 
     // Return a random word
     function pickWord() {
-      console.log("hangmanGame pickWord");
+      if (DEBUG) console.log("hangmanGame pickWord");
       var wordsToGuess = ["Chewbacca", "Batman", "Groot", "Paddington", "Tarzan", "Rapunzel", "Alfalfa", "Kermit", "Pikachu", "Shrek", "Barbie",
         "Elmo", "Annie", "Ralphie", "Nemo", "Shrek", "Woody", "Yoda", "Bane", "Morpheus", "Popeye", "Babe", "Minions"];
 
       var word = wordsToGuess[Math.floor(Math.random() * wordsToGuess.length)];
-      console.log("word guess pick word: " + word);
+      if (DEBUG) console.log("word guess pick word: " + word);
       return word;
     }
 
     // Return word as blank spots for the letters
     function setupAnswerArray(word) {
-      console.log("setupAnswerArray for: " + word);
+      if (DEBUG) console.log("setupAnswerArray for: " + word);
       var answerArray = [];
       for (var i = 0; i < word.length; i++) {
         answerArray[i] = "_";
@@ -234,7 +261,7 @@
     // times the guess appears in the word so remainingLetters
     // can be updated
     function updateAnswerArray(guess, word, answerArray) {
-      console.log("guess: " + guess + " word: " + hangmanWord + " answerArray: " + answerArray);
+      if (DEBUG) console.log("guess: " + guess + " word: " + hangmanWord + " answerArray: " + answerArray);
       var lettersFound = 0;
       for (var i = 0; i < word.length; i++) {
         if (word[i].toLowerCase() === guess.toLowerCase()) {
@@ -248,20 +275,15 @@
     //Check that the user input keypress is a valid letter
     function isValidEntry(letter) {
       var isValid = /^[A-Za-z]$/.test(letter);
-      console.log("isValidEntry( " + letter + " ): " + isValid);
+      if (DEBUG) console.log("isValidEntry( " + letter + " ): " + isValid);
       if (isValid) { return true; }
       else { return false; }
     }
 
     function winGame() {
-      console.log("Win game");
+      if (DEBUG) console.log("Win game");
       gameMsgTxt.textContent = WIN_MSG;
-
-      var winnerImgElem = document.createElement('img'); // is a node
-      winnerImgElem.src = "images/" + hangmanWord + ".jpg";
-      winnerImgElem.id = "word-image";
-      imgDiv.appendChild(winnerImgElem);
-
+      showImg();
       gameInProgress = false;
 
       setTimeout(function () {
@@ -271,11 +293,12 @@
     }
 
     function loseGame() {
-      console.log("Lose Game");
+      if (DEBUG) console.log("Lose Game");
       gameMsgTxt.textContent = LOSE_MSG;
       var correctAnswer = hangmanWord.split('').join(" ");
       //reveal word
       wordDisplayTxt.textContent = correctAnswer;
+      showImg();
       gameInProgress = false;
 
       setTimeout(function () {
@@ -283,7 +306,13 @@
         resetGame();
       }, 5000);
     }
-
+    function showImg() { 
+      var winnerImgElem = document.createElement('img'); // is a node
+      winnerImgElem.src = "images/" + hangmanWord + ".jpg";
+      winnerImgElem.id = "word-image";
+      imgDiv.appendChild(winnerImgElem);
+    }
+  
   </script>
 
 
