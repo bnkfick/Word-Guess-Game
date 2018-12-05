@@ -1,0 +1,84 @@
+
+* {
+    box-sizing: border-box;
+}
+  
+  body {
+    background-image: url("images/letters.jpg"); 
+    height: 100%; 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center; 
+    /* background-size: cover;       */
+    /* background-color: lightblue;  */
+    color: #777777;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+
+h1 {
+    color: #0F224E;
+}
+.glass {
+    background-color: rgba(19, 18, 18, 0.671);
+    /* Experimental Feature must be turned on in chrome://flags/ 
+        -->Experimental Web Platform Features */
+    backdrop-filter: blur(5px);   
+    -webkit-backdrop-filter: blur(5px);  
+    /* border: 5px solid #f4f8f780; */
+}
+  
+  .content-wrapper {
+      margin: 0;
+      width: 100%;
+      text-align: left;
+      padding-left: 50px;
+  }
+
+  .content-box {
+      max-width: 880px;
+      margin-bottom: 50px;
+      margin-top: 50px; 
+      padding: 10px 40px 10px 40px;
+      background-color: rgba(255, 255, 255, 0.85); /* Black w/opacity/see-through */
+    border: 1px solid #888888;
+
+    -moz-box-shadow: -3px 3px 5px #888888;
+    -webkit-box-shadow: -3px 3px 5px #888888;
+    box-shadow: -3px 3px 5px #888888;
+
+}
+
+  .middle > * {
+    vertical-align: middle;
+  }
+  #word-image {
+    padding-top:50px;
+    max-width: 300px;
+  }
+  .win-image {
+    height: 100%;
+  }
+  .column {
+    width: 50%;
+    float: left;
+  }
+
+  .clearfix::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+/* -- lightgrey if the viewport is less than 640px wide -- */
+@media screen and (max-width: 600px) {
+
+    .content-wrapper {
+      padding-left: 0;
+    }
+    .column {
+    width: 100%;
+  }
+}
